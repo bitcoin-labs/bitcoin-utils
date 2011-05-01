@@ -1,0 +1,13 @@
+#!/usr/bin/env coffee
+
+http = require 'http'
+{readText} = require './util'
+
+
+http.get {host:'bitcoinmonitor.com', port:80, path:'/data/-1'}, (res) ->
+  readText res, (j) ->
+    {plot_data} = JSON.parse j
+    for [t, type, amount, title] in plot_data.reverse()
+      tstr = Math.round((new Date().getTime() - t) / 1000)
+      console.log "[#{tstr}s ago] #{title}"
+
