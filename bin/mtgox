@@ -1,0 +1,33 @@
+#!/usr/bin/env coffee
+
+https = require 'https'
+
+readText = (s, callback) ->
+  arr = []
+  s.on 'data', (data) -> arr.push data.toString 'utf-8'
+  s.on 'end', () -> callback arr.join ''
+
+
+get = (path, callback) ->
+  https.get {host: 'mtgox.com', path: path}, (res) ->
+    readText res, (json) ->
+      callback JSON.parse json
+
+reversed = (arr) ->
+  arr2 = JSON.parse JSON.stringify arr
+  arr2.reverse()
+
+get '/code/data/getDepth.php', (info) ->
+  
+  {asks, bids} = info
+  
+  for [price, amount] in reversed(asks[0...8])
+    console.log "ASK #{amount}      #{price}"
+  
+  spread = asks[0][0] - bids[0][0]
+  console.log "------ spread: #{spread}"
+  
+  for [price, amount] in bids[0...8]
+    console.log "BID #{amount}      #{price}"
+
+
